@@ -9,6 +9,12 @@ import scrapy
 
 
 class NameItem(scrapy.Item):
+    name = scrapy.Field()
+    total_male = scrapy.Field()
+    total_female = scrapy.Field()
+
+
+class DetailedNameItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     name = scrapy.Field()

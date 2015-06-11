@@ -16,7 +16,7 @@ NEWSPIDER_MODULE = 'spiders.spiders'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'spiders (+http://www.yourdomain.com)'
 
-#LOG_LEVEL = 'DEBUG'
-CONCURRENT_REQUESTS = 1
-DOWNLOAD_DELAY = 0.1
-LOG_FILE = 'log.log'
+#LOG_LEVEL = 'INFO'
+#CONCURRENT_REQUESTS = 1
+#DOWNLOAD_DELAY = 0.1
+#LOG_FILE = 'log.log'
