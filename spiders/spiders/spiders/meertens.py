@@ -13,17 +13,16 @@ from scrapy.contrib.linkextractors import LinkExtractor
 from scrapy.shell import inspect_response
 
 
-DOMAIN = 'http://www.meertens.knaw.nl/'
-GENDERS = {'male': 'man', 'female': 'vrouw'}
 NAME_TYPES = {'eerstenaam': 'first', 'volgnaam': 'follow'}
-NAME_PATTERN = DOMAIN + 'nvb/populariteit/naam/Anne-A'  # Used for debugging
-BASE_URL = DOMAIN + 'nvb/naam/begintmet/'
-PAGE_PATTERN = DOMAIN + 'nvb/naam/pagina.*/begintmet/'
-DETAILS_PATTERN = (DOMAIN +
-                   'nvb/populariteit/absoluut/{gender}/{name_type}/{name}#data')
+DOMAIN = 'http://www.meertens.knaw.nl/'
+LIST_URL = DOMAIN + 'nvb/naam/begintmet/'
+LIST_PATTERN = DOMAIN + 'nvb/naam/pagina.*/begintmet/'
+DETAILS_URL = (DOMAIN +
+               'nvb/populariteit/absoluut/{gender}/{name_type}/{name}#data')
 
-PATHS = {'name': "//div[@class='name']/text()",
-         'info_table': "//table[@class='nameinfo']",
+PATHS = {'list': "//table[@class='namelist']",
+         'name': "//div[@class='name']/text()",
+         'table': "//table[@class='nameinfo']",
          'graph': "//script"}
 DATA_PATHS = {'male': '../data/scrapeable_males.csv',
               'female': '../data/scrapeable_females.csv'}
@@ -35,11 +34,11 @@ class MeertensListSpider(CrawlSpider):
 
     name = "meertens_list"
     allowed_domains = ["meertens.knaw.nl"]
-    start_urls = [BASE_URL + letter for letter in string.ascii_lowercase[1:]]
+    start_urls = [LIST_URL + letter for letter in string.ascii_lowercase]
     # Following line is used for debugging
     # start_urls = [BASE_URL + letter for letter in ['Anne-B']]
     rules = (
-        Rule(LinkExtractor(allow=(PAGE_PATTERN, )),
+        Rule(LinkExtractor(allow=(LIST_PATTERN, )),
              callback='parse_item', follow=True),
     )
 
@@ -58,7 +57,7 @@ class MeertensListSpider(CrawlSpider):
         :return: Item
         :rtype: ..item.NameItem
         """
-        extracted_table = response.xpath("//table[@class='namelist']").extract()
+        extracted_table = response.xpath(PATHS['list']).extract()
         if extracted_table:
             # Using pandas for parsing is easier than using xpath.
             table = pandas.read_html(extracted_table[0], header=0,
@@ -100,8 +99,8 @@ class MeertensDetailsSpider(scrapy.Spider):
         :return:
         """
         for gender, path in DATA_PATHS.iteritems():
-            names = pandas.read_csv(path, index_col=False, encoding='utf-8')
-            #names = pandas.read_csv(path, index_col=False, encoding='utf-8').iloc[:2]
+            # names = pandas.read_csv(path, index_col=False, encoding='utf-8')
+            names = pandas.read_csv(path, index_col=False, encoding='utf-8').iloc[:2]
             for name_type, name in itertools.product(NAME_TYPES, names.values):
                 yield self._generate_request(gender, name_type, name[0])
 
@@ -116,7 +115,7 @@ class MeertensDetailsSpider(scrapy.Spider):
         :return: Request
         :rtype scrapy.Request
         """
-        url = DETAILS_PATTERN.format(gender=gender, name_type=name_type,
+        url = DETAILS_URL.format(gender=gender, name_type=name_type,
                                      name=name)
         self.log('Generated URL: ' + url)
         request = Request(url)
@@ -151,6 +150,8 @@ class MeertensDetailsSpider(scrapy.Spider):
         elif name_type_nl == 'volgnaam':
             name_type = 'follow'
         else:
+            self.log('Unknown name type %s for URL: %s' % (name_type_nl,
+                                                           response.url))
             name_type = name_type_nl
         return name_type
 
@@ -167,6 +168,8 @@ class MeertensDetailsSpider(scrapy.Spider):
         elif gender_nl == 'man':
             gender = 'male'
         else:
+            self.log('Unknown gender %s for URL: %s' % (gender_nl,
+                                                        response.url))
             gender = gender_nl
         return gender
 
@@ -177,7 +180,7 @@ class MeertensDetailsSpider(scrapy.Spider):
         :return: Updated item
         :rtype ..items.NameItem
         """
-        html_table = response.xpath(PATHS['info_table']).extract()[0]
+        html_table = response.xpath(PATHS['table']).extract()[0]
         parsed_table = pandas.read_html(html_table)[0]
         if item['gender'] == 'male':
             offset = 0
@@ -226,7 +229,9 @@ class MeertensDetailsSpider(scrapy.Spider):
         if len(graph_list) == 1:
             graph = graph_list[0]
         elif len(graph_list) > 0:
-            self.log("Found multiple graphs for page: " + response.url)
+            self.log("Found multiple graphs for URL: " + response.url)
+        else:
+            self.log("Found no graphs for URL: " + response.url)
         return graph
 
     def _parse_graph_javascript(self, graph):

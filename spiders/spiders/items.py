@@ -15,8 +15,6 @@ class NameItem(scrapy.Item):
 
 
 class DetailedNameItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
     name = scrapy.Field()
     name_type = scrapy.Field()
     gender = scrapy.Field()
@@ -30,6 +28,3 @@ class DetailedNameItem(scrapy.Item):
     step_total_value = scrapy.Field()
     step_total_approximation = scrapy.Field()
     approximation = scrapy.Field()
-
-
-
