@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# Define here the models for your scraped items
-#
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/items.html
 
@@ -22,6 +20,7 @@ class DetailedNameItem(scrapy.Item):
     first_percent = scrapy.Field()
     follow_count = scrapy.Field()
     follow_percent = scrapy.Field()
+    has_details = scrapy.Field()
     year = scrapy.Field()
     value = scrapy.Field()
     step_size = scrapy.Field()

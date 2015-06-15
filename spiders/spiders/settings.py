@@ -16,7 +16,13 @@ NEWSPIDER_MODULE = 'spiders.spiders'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'spiders (+http://www.yourdomain.com)'
 
-#LOG_LEVEL = 'INFO'
-#CONCURRENT_REQUESTS = 1
+LOG_LEVEL = 'INFO'
+CONCURRENT_REQUESTS = 8
+CONCURRENT_REQUESTS_PER_DOMAIN = 4
+DOWNLOAD_DELAY = 0.05
 #DOWNLOAD_DELAY = 0.1
-#LOG_FILE = 'log.log'
+LOG_FILE = 'log.log'
+
+ITEM_PIPELINES = {
+    'spiders.pipelines.ItemParserPipeline': 300,
+}
