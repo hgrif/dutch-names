@@ -2,73 +2,78 @@
 <html lang="en">
 
 <head>
-    <title>Typeahead.js Tutorial with Mysql Database</title>
+    <title> Geboortes </title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    <meta name="generator" content="Geany 1.23.1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
+
 <link href="static/css/bootstrap.min.css" rel="stylesheet" />
+<link href="static/css/theme.css" rel="stylesheet" />
 <script type="text/javascript" src="static/js/jquery-2.0.3.min.js"></script>
 <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="static/js/typeahead.min.js"></script>
+
 <style>
-.tt-query,
-.tt-hint {
+
+    .tt-query,
+    .tt-hint {
     width: 396px;
     height: 30px;
     padding: 8px 12px;
-    font-size: 24px;
+    font-size: 20px;
     line-height: 30px;
-    border: 2px solid #ccc;
-    -webkit-border-radius: 8px;
-    -moz-border-radius: 8px;
-    border-radius: 8px;
+    border: 1px solid #ccc;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
     outline: none;
-}
+    }
 
-.tt-query {
+    .tt-query {
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-}
+    }
 
-.tt-hint {
+    .tt-hint {
     color: #999
-}
+    }
 
-.tt-dropdown-menu {
-    width: 422px;
-    margin-top: 12px;
+    .tt-dropdown-menu {
+    width: 396px;
     padding: 8px 0;
     background-color: #fff;
     border: 1px solid #ccc;
     border: 1px solid rgba(0, 0, 0, 0.2);
-    -webkit-border-radius: 8px;
-    -moz-border-radius: 8px;
-    border-radius: 8px;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
     -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
     -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
     box-shadow: 0 5px 10px rgba(0,0,0,.2);
-}
+    }
 
-.tt-suggestion {
-    padding: 3px 20px;
-    font-size: 18px;
+    .tt-suggestion {
+    padding: 3px 12px;
+    font-size: 15px;
     line-height: 24px;
-}
+    }
 
-.tt-suggestion.tt-is-under-cursor {
+    .tt-suggestion.tt-is-under-cursor {
     color: #fff;
     background-color: #0097cf;
+    }
 
-}
+
 </style>
+
 <!--
 See http://mycodde.blogspot.nl/2014/12/typeaheadjs-autocomplete-suggestion.html
 https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#options
 //-->
 <script>
 $.get('static/names.json', function(data){
-    $("#search").typeahead({
+    $("#searchtext").typeahead({
         name: 'sear',
         local: data,
         highlight: true,
@@ -77,18 +82,79 @@ $.get('static/names.json', function(data){
 },'json');
 </script>
 
-<!--
-<script>
-$(document).ready(function(){
-    $("#search").typeahead({
-        name : 'sear',
-        remote : 'static/names.json'
-    });
-});
-</script>
-//-->
+
 <body>
-    <input type="text" name="search" id="search">
+
+<div class="container">
+
+    <div class="panel">
+        <div class="row header">
+            <div class="col-xs-12 text-center">
+                <h1>
+                    Namen
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- see http://www.bootply.com/render/90113 //-->
+
+    <div class="row content" id="'searchrow">
+        <div class="col-sm-4 ">
+            <div class="input-group">
+                <input type="text" name="search" id="searchtext">
+                <span class="input-group-btn">
+                    <button class="btn btn-default btn-primary" type="submit" id="searchbutton">
+                        <i class="glyphicon glyphicon-search">
+                        </i>
+                    </button>
+                </span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"> Totaal</h3>
+                </div>
+                <div class="panel-body">
+                    Plaatje
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"> Man </h3>
+                </div>
+                <div class="panel-body">
+                    Plaatje
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"> Vrouw </h3>
+                </div>
+                <div class="panel-body">
+                    Plaatje
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
 </body>
 
 </html>
