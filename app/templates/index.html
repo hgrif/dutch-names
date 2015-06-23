@@ -114,6 +114,7 @@ See http://mycodde.blogspot.nl/2014/12/typeaheadjs-autocomplete-suggestion.html
 https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#options
 //-->
 <script>
+// Replace static JSON by call to Mongo DB
 $.get('static/names.json', function(data){
     $("#searchtext").typeahead({
         name: 'sear',
@@ -146,9 +147,11 @@ $.get('static/names.json', function(data){
 
         <div class="row content" id="'searchrow">
             <div class="col-sm-4 ">
+				<!-- TODO: align search & glyph //-->
                 <div class="input-group">
                     <input type="text" name="search" id="searchtext">
                     <span class="input-group-btn">
+						<!-- TODO: make button do something //-->
                         <button class="btn btn-default btn-primary" type="submit" id="searchbutton">
                             <i class="glyphicon glyphicon-search">
                             </i>
@@ -192,6 +195,7 @@ $.get('static/names.json', function(data){
                         <h3 class="panel-title"> Vrouw </h3>
                     </div>
                     <div class="panel-body">
+						<!-- TODO: Add summary text //-->
                         Plaatje
                     </div>
                 </div>
@@ -207,14 +211,20 @@ $.get('static/names.json', function(data){
 
     function plotAll(error, name_stats) {
 
+		// TODO: convert to class
+
         if (error) return console.error(error);
 
-
+		// TODO: parse years as dates
         data = name_stats['female']['first']['data'];
 
         var margin = {top: 40, right: 20, bottom: 40, left: 40}
 
-		// TODO: add minimum ax maximum sizes
+		// TODO: Make responsive/resizable 
+		// http://www.tnoda.com/blog/2013-10-14
+		// http://www.tnoda.com/blog/2013-12-07
+		// https://eyeseast.github.io/visible-data/2013/08/26/responsive-d3/
+		// TODO: add minimum and maximum sizes
         var width = $("#charttotal").width() - margin.left - margin.right;
 		console.log(width)
         var height = Math.ceil(width / 3) - margin.top - margin.bottom;
@@ -234,8 +244,9 @@ $.get('static/names.json', function(data){
         var yearMax = d3.max(data, 
 			function(d) { return d.birth_year; });
 
-        var yMax = d3.max(data, function(d) {return d.n_born; });
+        var yMax = d3.max(data, function(d) { return d.n_born; });
 
+		// TODO: convert xScale to year scale
         var xScale = d3.scale.linear()
         .range([0, width])
         .domain([yearMin, yearMax])
@@ -245,6 +256,7 @@ $.get('static/names.json', function(data){
         .range([height, 0])
         ;
 
+		// TODO: optimize ticks
         var xAxis = d3.svg.axis()
         .scale(xScale)
         .orient("bottom")
@@ -254,6 +266,7 @@ $.get('static/names.json', function(data){
         .orient("left")
         ;
 
+		// TODO: replace by line
         graph.selectAll("bar")
         .data(data)
         .enter()
@@ -262,8 +275,7 @@ $.get('static/names.json', function(data){
 			class: "bar",
 			x: function(d) { return xScale(d.birth_year); },
 			y: function(d) { return yScale(d.n_born); },
-			height: function(d) { return height - 
-				yScale(d.n_born); },
+			height: function(d) { return height - yScale(d.n_born); },
 			width: 5
 		});
 
