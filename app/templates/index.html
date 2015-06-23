@@ -12,11 +12,13 @@
 <script type="text/javascript" src="static/js/jquery-2.0.3.min.js"></script>
 <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="static/js/typeahead.min.js"></script>
+<script type="text/javascript" src="static/js/d3.js"></script>
+<script type="text/javascript" src="static/js/queue.min.js"></script>
 
 <style>
 
-    .tt-query,
-    .tt-hint {
+.tt-query,
+.tt-hint {
     width: 396px;
     height: 30px;
     padding: 8px 12px;
@@ -27,19 +29,19 @@
     -moz-border-radius: 0px;
     border-radius: 0px;
     outline: none;
-    }
+}
 
-    .tt-query {
+.tt-query {
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    }
+}
 
-    .tt-hint {
+.tt-hint {
     color: #999
-    }
+}
 
-    .tt-dropdown-menu {
+.tt-dropdown-menu {
     width: 396px;
     padding: 8px 0;
     background-color: #fff;
@@ -51,18 +53,58 @@
     -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
     -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
     box-shadow: 0 5px 10px rgba(0,0,0,.2);
-    }
+}
 
-    .tt-suggestion {
+.tt-suggestion {
     padding: 3px 12px;
     font-size: 15px;
     line-height: 24px;
-    }
+}
 
-    .tt-suggestion.tt-is-under-cursor {
+.tt-suggestion.tt-is-under-cursor {
     color: #fff;
     background-color: #0097cf;
-    }
+
+}
+#charttotal div{
+    background-color: steelblue;
+    text-align: right;
+    display: inline-block;
+    padding: 3px;
+    margin: 1px;
+    color: white;
+    width: 10;
+    height: 75px;	/* Gets overriden by D3-assigned height below */
+    margin-right: 2px;
+}
+
+#charttotal rect {
+    fill: steelblue;
+}
+
+.chart div {
+  font: 10px sans-serif;
+  background-color: steelblue;
+  text-align: right;
+  padding: 3px;
+  margin: 1px;
+  color: white;
+}
+
+.axis line, .axis path {
+	stroke: green;
+	stroke-width: 1.0;
+	stroke: black; fill: none; stroke-width: 1px;
+}
+
+
+.chart2 text {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: end;
+
+}
+
 
 
 </style>
@@ -80,80 +122,165 @@ $.get('static/names.json', function(data){
         limit: 10
     });
 },'json');
+
 </script>
+
+
 
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <div class="panel">
-        <div class="row header">
-            <div class="col-xs-12 text-center">
-                <h1>
-                    Namen
-                </h1>
+        <div class="panel">
+            <div class="row header">
+                <div class="col-xs-12 text-center">
+                    <h1>
+                        Namen
+                    </h1>
+                </div>
             </div>
+        </div>
+
+        <!-- see http://www.bootply.com/render/90113 //-->
+
+        <div class="row content" id="'searchrow">
+            <div class="col-sm-4 ">
+                <div class="input-group">
+                    <input type="text" name="search" id="searchtext">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default btn-primary" type="submit" id="searchbutton">
+                            <i class="glyphicon glyphicon-search">
+                            </i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- see http://www.bootply.com/render/90113 //-->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"> Totaal</h3>
+                    </div>
+                    <div class="panel-body">
+                        Plaatje
+                        <div class=namegraph id="charttotal"> </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="row content" id="'searchrow">
-        <div class="col-sm-4 ">
-            <div class="input-group">
-                <input type="text" name="search" id="searchtext">
-                <span class="input-group-btn">
-                    <button class="btn btn-default btn-primary" type="submit" id="searchbutton">
-                        <i class="glyphicon glyphicon-search">
-                        </i>
-                    </button>
-                </span>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"> Man </h3>
+                    </div>
+                    <div class="panel-body">
+                        Plaatje
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"> Vrouw </h3>
+                    </div>
+                    <div class="panel-body">
+                        Plaatje
+                    </div>
+                </div>
             </div>
         </div>
 
     </div>
-</div>
+    <script ?>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title"> Totaal</h3>
-                </div>
-                <div class="panel-body">
-                    Plaatje
-                </div>
-            </div>
-        </div>
-    </div>
+    queue()
+    .defer(d3.json, "static/data/anne.json")
+    .await(plotAll);
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title"> Man </h3>
-                </div>
-                <div class="panel-body">
-                    Plaatje
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title"> Vrouw </h3>
-                </div>
-                <div class="panel-body">
-                    Plaatje
-                </div>
-            </div>
-        </div>
-    </div>
+    function plotAll(error, name_stats) {
 
-</div>
-</div>
+        if (error) return console.error(error);
+
+
+        data = name_stats['female']['first']['data'];
+
+        var margin = {top: 40, right: 20, bottom: 40, left: 40}
+
+		// TODO: add minimum ax maximum sizes
+        var width = $("#charttotal").width() - margin.left - margin.right;
+		console.log(width)
+        var height = Math.ceil(width / 3) - margin.top - margin.bottom;
+		var barPadding = 5;
+
+        var svg = d3.select("#charttotal")
+        .append('svg')
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
+
+		var graph = svg.append("svg:g")
+		.attr("transform",
+			"translate(" + margin.left + "," + margin.top + ")");
+
+        var yearMin = d3.min(data, 
+			function(d) { return d.birth_year; });
+        var yearMax = d3.max(data, 
+			function(d) { return d.birth_year; });
+
+        var yMax = d3.max(data, function(d) {return d.n_born; });
+
+        var xScale = d3.scale.linear()
+        .range([0, width])
+        .domain([yearMin, yearMax])
+        ;
+        var yScale = d3.scale.linear()
+        .domain([0, yMax])
+        .range([height, 0])
+        ;
+
+        var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .orient("bottom")
+        ;
+        var yAxis = d3.svg.axis()
+        .scale(yScale)
+        .orient("left")
+        ;
+
+        graph.selectAll("bar")
+        .data(data)
+        .enter()
+        .append("rect")
+		.attr({
+			class: "bar",
+			x: function(d) { return xScale(d.birth_year); },
+			y: function(d) { return yScale(d.n_born); },
+			height: function(d) { return height - 
+				yScale(d.n_born); },
+			width: 5
+		});
+
+        graph.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+		
+        graph.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+        console.log("hai");
+
+    };
+
+    </script>
 
 </body>
 
