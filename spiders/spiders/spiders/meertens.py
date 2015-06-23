@@ -89,12 +89,7 @@ class MeertensDetailsSpider(scrapy.Spider):
                                     names=['name'])
             # names = pandas.read_csv(path, index_col=False, encoding='utf-8',
                                     # names=['name']).iloc[:20]
-            names = names[(names.name == 'Anne')]
-            self.log(str(names))
             for name_type, name in itertools.product(NAME_TYPES, names.values):
-                self.log('type' + name_type)
-                self.log('name' + name)
-                self.log('gender' + gender)
                 yield self._generate_request(gender, name_type, name[0])
 
     def _generate_request(self, gender, name_type, name):
