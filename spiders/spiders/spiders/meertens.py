@@ -11,6 +11,7 @@ from scrapy.contrib.spiders import CrawlSpider
 from scrapy.contrib.spiders import Rule
 from scrapy.contrib.linkextractors import LinkExtractor
 from scrapy.shell import inspect_response
+from werkzeug import urls
 
 
 NAME_TYPES = {'eerstenaam': 'first', 'volgnaam': 'follow'}
@@ -24,8 +25,8 @@ PATHS = {'list': "//table[@class='namelist']",
          'name': "//div[@class='name']/text()",
          'table': "//table[@class='nameinfo']",
          'graph': "//script"}
-DATA_PATHS = {'male': '../data/scrapeable_males.csv',
-              'female': '../data/scrapeable_females.csv'}
+DATA_PATHS = {'man': '../data/scrapeable_males.csv',
+              'vrouw': '../data/scrapeable_females.csv'}
 
 
 class MeertensListSpider(CrawlSpider):
@@ -65,26 +66,11 @@ class MeertensListSpider(CrawlSpider):
             for name, values in table.iterrows():
                 item = NameItem()
                 item['name'] = name
-                item['total_male'] = self._parse_number(values['Mannen'])
-                item['total_female'] = self._parse_number(values['Vrouwen'])
+                item['total_male'] = values['Mannen']
+                item['total_female'] = values['Vrouwen']
                 yield item
         else:
             self.log("No table on page: " + response.url, level=log.ERROR)
-
-    def _parse_number(self, s):
-        """ Parse string with name stats.
-        :param s: String with number
-        :type: str
-        :return: Number
-        :rtype: int
-        """
-        if s == '< 5':
-            n = 4
-        elif s == '-':
-            n = 0
-        else:
-            n = int(s)
-        return n
 
 
 class MeertensDetailsSpider(scrapy.Spider):
@@ -99,9 +85,16 @@ class MeertensDetailsSpider(scrapy.Spider):
         :return:
         """
         for gender, path in DATA_PATHS.iteritems():
-            # names = pandas.read_csv(path, index_col=False, encoding='utf-8')
-            names = pandas.read_csv(path, index_col=False, encoding='utf-8').iloc[:2]
+            names = pandas.read_csv(path, index_col=False, encoding='utf-8',
+                                    names=['name'])
+            # names = pandas.read_csv(path, index_col=False, encoding='utf-8',
+                                    # names=['name']).iloc[:20]
+            names = names[(names.name == 'Anne')]
+            self.log(str(names))
             for name_type, name in itertools.product(NAME_TYPES, names.values):
+                self.log('type' + name_type)
+                self.log('name' + name)
+                self.log('gender' + gender)
                 yield self._generate_request(gender, name_type, name[0])
 
     def _generate_request(self, gender, name_type, name):
@@ -116,7 +109,7 @@ class MeertensDetailsSpider(scrapy.Spider):
         :rtype scrapy.Request
         """
         url = DETAILS_URL.format(gender=gender, name_type=name_type,
-                                     name=name)
+                                 name=urls.url_fix(name))
         self.log('Generated URL: ' + url)
         request = Request(url)
         return request
@@ -133,7 +126,8 @@ class MeertensDetailsSpider(scrapy.Spider):
         item['gender'] = self._get_gender(response)
         item = self._parse_table(response, item)
         # Graph with year data is not available for all names.
-        if self._contains_graph(response):
+        item['has_details'] = self._contains_graph(response)
+        if item['has_details']:
             item = self._parse_graph(response, item)
         yield item
 
@@ -144,15 +138,7 @@ class MeertensDetailsSpider(scrapy.Spider):
         :rtype: str
         """
         split_url = response.url.split('populariteit/absoluut/')
-        name_type_nl = split_url[1].split('/')[1]
-        if name_type_nl == 'eerstenaam':
-            name_type = 'first'
-        elif name_type_nl == 'volgnaam':
-            name_type = 'follow'
-        else:
-            self.log('Unknown name type %s for URL: %s' % (name_type_nl,
-                                                           response.url))
-            name_type = name_type_nl
+        name_type = split_url[1].split('/')[1]
         return name_type
 
     def _get_gender(self, response):
@@ -162,15 +148,7 @@ class MeertensDetailsSpider(scrapy.Spider):
         :rtype: str
         """
         split_url = response.url.split('populariteit/absoluut/')
-        gender_nl = split_url[1].split('/')[0]
-        if gender_nl == 'vrouw':
-            gender = 'female'
-        elif gender_nl == 'man':
-            gender = 'male'
-        else:
-            self.log('Unknown gender %s for URL: %s' % (gender_nl,
-                                                        response.url))
-            gender = gender_nl
+        gender = split_url[1].split('/')[0]
         return gender
 
     def _parse_table(self, response, item):
@@ -182,16 +160,18 @@ class MeertensDetailsSpider(scrapy.Spider):
         """
         html_table = response.xpath(PATHS['table']).extract()[0]
         parsed_table = pandas.read_html(html_table)[0]
-        if item['gender'] == 'male':
+        if item['gender'] == 'man':
             offset = 0
-        elif item['gender'] == 'female':
+        elif item['gender'] == 'vrouw':
             offset = 3
         else:
+            self.log("Unknown gender: " + item['gender'])
             return item
         item['first_count'] = parsed_table.ix[1 + offset, 2]
         item['first_percent'] = parsed_table.ix[1 + offset, 4]
         item['follow_count'] = parsed_table.ix[2 + offset, 2]
         item['follow_percent'] = parsed_table.ix[2 + offset, 4]
+        # TODO: add flag if sufficient stats for first and follow
         return item
 
     def _contains_graph(self, response):
