@@ -78,9 +78,6 @@
     margin-right: 2px;
 }
 
-#charttotal rect {
-    fill: steelblue;
-}
 
 .chart div {
   font: 10px sans-serif;
@@ -97,14 +94,29 @@
 	stroke: black; fill: none; stroke-width: 1px;
 }
 
+.born_line {
+	fill: none;
+	stroke: steelblue;
+	stroke-width: 2;
+}
+
+.born_alive_line {
+	fill: none;
+	stroke: green;
+	stroke-width: 2;
+}
 
 .chart2 text {
   fill: white;
   font: 10px sans-serif;
   text-anchor: end;
-
 }
 
+.graphBackground {
+	fill: #eeeeee;
+	stroke: #dddddd;
+	stroke-width: 1;
+}
 
 
 </style>
@@ -216,7 +228,7 @@ $.get('static/names.json', function(data){
         if (error) return console.error(error);
 
 		// TODO: parse years as dates
-        data = name_stats['female']['first']['data'];
+        data = name_stats['male']['total']['data'];
 
         var margin = {top: 40, right: 20, bottom: 40, left: 40}
 
@@ -224,10 +236,9 @@ $.get('static/names.json', function(data){
 		// http://www.tnoda.com/blog/2013-10-14
 		// http://www.tnoda.com/blog/2013-12-07
 		// https://eyeseast.github.io/visible-data/2013/08/26/responsive-d3/
-		// TODO: add minimum and maximum sizes
         var width = $("#charttotal").width() - margin.left - margin.right;
 		console.log(width)
-        var height = Math.ceil(width / 3) - margin.top - margin.bottom;
+        var height = Math.max(Math.ceil(width / 2.7) - margin.top - margin.bottom, 180);
 		var barPadding = 5;
 
         var svg = d3.select("#charttotal")
@@ -238,6 +249,12 @@ $.get('static/names.json', function(data){
 		var graph = svg.append("svg:g")
 		.attr("transform",
 			"translate(" + margin.left + "," + margin.top + ")");
+
+		graph.append("rect")
+		.attr("class", "graphBackground")
+		.attr("width", width)
+		.attr("height", height)
+		.attr("fill", "#ffffff");
 
         var yearMin = d3.min(data, 
 			function(d) { return d.birth_year; });
@@ -255,29 +272,47 @@ $.get('static/names.json', function(data){
         .domain([0, yMax])
         .range([height, 0])
         ;
+		if (width < 420){
+			var nXTicks = 5;
+		} else {
+			var nXTicks = 10;
+		}
 
 		// TODO: optimize ticks
         var xAxis = d3.svg.axis()
         .scale(xScale)
         .orient("bottom")
+		.ticks(nXTicks)
+		.tickFormat(d3.format("d"))
         ;
         var yAxis = d3.svg.axis()
         .scale(yScale)
         .orient("left")
-        ;
+		.tickFormat(d3.format("d"))
+		;
 
-		// TODO: replace by line
-        graph.selectAll("bar")
-        .data(data)
-        .enter()
-        .append("rect")
+
+		// TODO: add mouse over
+		// http://bl.ocks.org/Matthew-Weber/5645518
+		// https://stackoverflow.com/questions/27597715/d3-x-value-mouseover-multiple-line-chart
+		// https://stackoverflow.com/questions/14043455/overlay-circle-text-etc-over-d3-js-multi-series-lines
+		var n_born_line = d3.svg.line()
+		.x(function(d) { return xScale(d.birth_year); })
+		.y(function(d) { return yScale(d.n_born); } );
+		var n_born_and_alive_line = d3.svg.line()
+		.x(function(d) { return xScale(d.birth_year); })
+		.y(function(d) { return Math.round(yScale(d.n_born_and_alive)); } );
+
+		graph.append("svg:path")
 		.attr({
-			class: "bar",
-			x: function(d) { return xScale(d.birth_year); },
-			y: function(d) { return yScale(d.n_born); },
-			height: function(d) { return height - yScale(d.n_born); },
-			width: 5
-		});
+			d: n_born_line(data),
+			class: "path born_line"
+			});
+		graph.append("svg:path")
+		.attr({
+			d: n_born_and_alive_line(data),
+			class: "path born_alive_line"
+			});
 
         graph.append("g")
         .attr("class", "x axis")
