@@ -66,7 +66,7 @@
     background-color: #0097cf;
 
 }
-#charttotal div{
+#chart-total div{
     background-color: steelblue;
     text-align: right;
     display: inline-block;
@@ -184,7 +184,7 @@ $.get('static/names.json', function(data){
                     </div>
                     <div class="panel-body">
                         Plaatje
-                        <div class=namegraph id="charttotal"> </div>
+                        <div class=namegraph id="chart-total"> </div>
                     </div>
                 </div>
             </div>
@@ -198,6 +198,7 @@ $.get('static/names.json', function(data){
                     </div>
                     <div class="panel-body">
                         Plaatje
+                        <div class=namegraph id="chart-male"> </div>
                     </div>
                 </div>
             </div>
@@ -209,6 +210,7 @@ $.get('static/names.json', function(data){
                     <div class="panel-body">
 						<!-- TODO: Add summary text //-->
                         Plaatje
+                        <div class=namegraph id="chart-female"> </div>
                     </div>
                 </div>
             </div>
@@ -221,42 +223,43 @@ $.get('static/names.json', function(data){
     .defer(d3.json, "static/data/anne.json")
     .await(plotAll);
 
-    function plotAll(error, name_stats) {
 
-		// TODO: convert to class
+	function nameGraph(div_name, data) {
 
-        if (error) return console.error(error);
-
-		// TODO: parse years as dates
-        data = name_stats['male']['total']['data'];
-
-        var margin = {top: 40, right: 20, bottom: 40, left: 40}
+		this.div_name = div_name;
+		this.data = data;
 
 		// TODO: Make responsive/resizable 
 		// http://www.tnoda.com/blog/2013-10-14
 		// http://www.tnoda.com/blog/2013-12-07
 		// https://eyeseast.github.io/visible-data/2013/08/26/responsive-d3/
-        var width = $("#charttotal").width() - margin.left - margin.right;
-		console.log(width)
-        var height = Math.max(Math.ceil(width / 2.7) - margin.top - margin.bottom, 180);
-		var barPadding = 5;
+		var MIN_HEIGHT = 180;
+        this.margin = {
+			top: 40, 
+			right: 20, 
+			bottom: 40, 
+			left: 40}
 
-        var svg = d3.select("#charttotal")
+		
+		this.width = $(this.div_name).width() - this.margin.left - this.margin.right;
+        this.height = Math.max(Math.ceil(this.width / 2.5) - this.margin.top - this.margin.bottom, MIN_HEIGHT);
+
+        var svg = d3.select(this.div_name)
         .append('svg')
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom);
+        .attr("width", this.width + this.margin.left + this.margin.right)
+        .attr("height", this.height + this.margin.top + this.margin.bottom);
 
 		var graph = svg.append("svg:g")
-		.attr("transform",
-			"translate(" + margin.left + "," + margin.top + ")");
+		.attr("transform", 
+			"translate(" + this.margin.left + "," + this.margin.top + ")");
 
 		graph.append("rect")
 		.attr("class", "graphBackground")
-		.attr("width", width)
-		.attr("height", height)
+		.attr("width", this.width)
+		.attr("height", this.height)
 		.attr("fill", "#ffffff");
 
-        var yearMin = d3.min(data, 
+		var yearMin = d3.min(data, 
 			function(d) { return d.birth_year; });
         var yearMax = d3.max(data, 
 			function(d) { return d.birth_year; });
@@ -265,14 +268,14 @@ $.get('static/names.json', function(data){
 
 		// TODO: convert xScale to year scale
         var xScale = d3.scale.linear()
-        .range([0, width])
+        .range([0, this.width])
         .domain([yearMin, yearMax])
         ;
         var yScale = d3.scale.linear()
         .domain([0, yMax])
-        .range([height, 0])
+        .range([this.height, 0])
         ;
-		if (width < 420){
+		if (this.width < 420){
 			var nXTicks = 5;
 		} else {
 			var nXTicks = 10;
@@ -323,7 +326,15 @@ $.get('static/names.json', function(data){
         .attr("class", "y axis")
         .call(yAxis);
 
-        console.log("hai");
+	}
+
+    function plotAll(error, name_stats) {
+
+        if (error) return console.error(error);
+
+		var totalGraph = nameGraph("#chart-total", name_stats['male']['total']['data']);
+		var maleGraph = nameGraph("#chart-male", name_stats['male']['total']['data']);
+		var femaleGraph = nameGraph("#chart-female", name_stats['female']['total']['data']);
 
     };
 
