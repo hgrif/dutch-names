@@ -139,8 +139,6 @@ $.get('static/names.json', function(data){
 </script>
 
 
-
-
 <body>
 
     <div class="container">
@@ -219,9 +217,13 @@ $.get('static/names.json', function(data){
     </div>
     <script ?>
 
+	var totalGraph; var maleGraph; var femaleGraph;
+
     queue()
     .defer(d3.json, "static/data/anne.json")
     .await(plotAll);
+
+	d3.select(window).on('resize', resizeGraphs);
 
 
 	function nameGraph(div_name, data) {
@@ -229,102 +231,211 @@ $.get('static/names.json', function(data){
 		this.div_name = div_name;
 		this.data = data;
 
-		// TODO: Make responsive/resizable 
-		// http://www.tnoda.com/blog/2013-10-14
-		// http://www.tnoda.com/blog/2013-12-07
-		// https://eyeseast.github.io/visible-data/2013/08/26/responsive-d3/
-		var MIN_HEIGHT = 180;
+		var MIN_HEIGHT = 200;
         this.margin = {
 			top: 40, 
 			right: 20, 
 			bottom: 40, 
 			left: 40}
 
-		
-		this.width = $(this.div_name).width() - this.margin.left - this.margin.right;
-        this.height = Math.max(Math.ceil(this.width / 2.5) - this.margin.top - this.margin.bottom, MIN_HEIGHT);
+		this.data;
 
-        var svg = d3.select(this.div_name)
-        .append('svg')
-        .attr("width", this.width + this.margin.left + this.margin.right)
-        .attr("height", this.height + this.margin.top + this.margin.bottom);
+		this.svg;
+		this.graph;
+		this.xScale;
+		this.yScale;
+		this.xAxis;
+		this.yAxis;
+		this.nXTicks;
 
-		var graph = svg.append("svg:g")
-		.attr("transform", 
-			"translate(" + this.margin.left + "," + this.margin.top + ")");
+		this.yearMin;
+		this.yearMax;
+		this.yMax;
 
-		graph.append("rect")
-		.attr("class", "graphBackground")
-		.attr("width", this.width)
-		.attr("height", this.height)
-		.attr("fill", "#ffffff");
+		this.n_born_line;
+		this.n_born_and_alive_line;
 
-		var yearMin = d3.min(data, 
-			function(d) { return d.birth_year; });
-        var yearMax = d3.max(data, 
-			function(d) { return d.birth_year; });
+		var me = this;
 
-        var yMax = d3.max(data, function(d) { return d.n_born; });
+		createGraph();
 
-		// TODO: convert xScale to year scale
-        var xScale = d3.scale.linear()
-        .range([0, this.width])
-        .domain([yearMin, yearMax])
-        ;
-        var yScale = d3.scale.linear()
-        .domain([0, yMax])
-        .range([this.height, 0])
-        ;
-		if (this.width < 420){
-			var nXTicks = 5;
-		} else {
-			var nXTicks = 10;
-		}
+		function createGraph() {
+			setSize();
 
-		// TODO: optimize ticks
-        var xAxis = d3.svg.axis()
-        .scale(xScale)
-        .orient("bottom")
-		.ticks(nXTicks)
-		.tickFormat(d3.format("d"))
-        ;
-        var yAxis = d3.svg.axis()
-        .scale(yScale)
-        .orient("left")
-		.tickFormat(d3.format("d"))
-		;
+			// Create drawing area and graph.
+			me.svg = d3.select(me.div_name)
+			.append('svg')
+			.attr("width", me.width + me.margin.left + 
+				me.margin.right)
+			.attr("height", me.height + me.margin.top + 
+				me.margin.bottom);
+			me.graph = me.svg.append("svg:g")
+			.attr("transform", "translate(" + me.margin.left + "," + 
+					me.margin.top + ")");
+
+			// Add background
+			me.graph.append("rect")
+			.attr("class", "graphBackground")
+			.attr("width", me.width)
+			.attr("height", me.height)
+			.attr("fill", "#ffffff");
+
+			// Get axes properties
+			getBoundaries(me.data);
+			createScale();
+			setXTicks();
+
+			me.xAxis = d3.svg.axis()
+			.scale(me.xScale)
+			.orient("bottom")
+			.ticks(me.nXTicks)
+			.tickFormat(d3.format("d"))
+			;
+			me.yAxis = d3.svg.axis()
+			.scale(me.yScale)
+			.orient("left")
+			.tickFormat(d3.format("d"))
+			;
 
 
-		// TODO: add mouse over
-		// http://bl.ocks.org/Matthew-Weber/5645518
-		// https://stackoverflow.com/questions/27597715/d3-x-value-mouseover-multiple-line-chart
-		// https://stackoverflow.com/questions/14043455/overlay-circle-text-etc-over-d3-js-multi-series-lines
-		var n_born_line = d3.svg.line()
-		.x(function(d) { return xScale(d.birth_year); })
-		.y(function(d) { return yScale(d.n_born); } );
-		var n_born_and_alive_line = d3.svg.line()
-		.x(function(d) { return xScale(d.birth_year); })
-		.y(function(d) { return Math.round(yScale(d.n_born_and_alive)); } );
+			// TODO: add mouse over
+			// http://bl.ocks.org/Matthew-Weber/5645518
+			// https://stackoverflow.com/questions/27597715/d3-x-value-mouseover-multiple-line-chart
+			// https://stackoverflow.com/questions/14043455/overlay-circle-text-etc-over-d3-js-multi-series-lines
+			me.n_born_line = d3.svg.line()
+			.x(function(d) { return me.xScale(d.birth_year); })
+			.y(function(d) { return me.yScale(d.n_born); } );
+			me.n_born_and_alive_line = d3.svg.line()
+			.x(function(d) { return me.xScale(d.birth_year); })
+			.y(function(d) { return Math.round(me.yScale(d.n_born_and_alive)); } );
 
-		graph.append("svg:path")
-		.attr({
-			d: n_born_line(data),
-			class: "path born_line"
-			});
-		graph.append("svg:path")
-		.attr({
-			d: n_born_and_alive_line(data),
-			class: "path born_alive_line"
-			});
+			me.graph.append("svg:path")
+			.attr({
+				d: me.n_born_line(data),
+				class: "path born_line"
+				});
+			me.graph.append("svg:path")
+			.attr({
+				d: me.n_born_and_alive_line(data),
+				class: "path born_alive_line"
+				});
 
-        graph.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
-		
-        graph.append("g")
-        .attr("class", "y axis")
-        .call(yAxis);
+			me.graph.append("g")
+			.attr("class", "axis x-axis")
+			.attr("transform", "translate(0," + me.height + ")")
+			.call(me.xAxis);
+			
+			me.graph.append("g")
+			.attr("class", "axis y-axis")
+			.call(me.yAxis);
+
+
+		};
+
+		function getBoundaries(data) {
+
+			// Determine axis boundaries
+			me.yearMin = d3.min(data, function(d) { return d.birth_year; });
+			me.yearMax = d3.max(data, function(d) { return d.birth_year; });
+			me.yMax = d3.max(data, function(d) { return d.n_born; });
+
+		};
+
+		function createScale() {
+
+			me.xScale = d3.scale.linear()
+			.range([0, me.width])
+			.domain([me.yearMin, me.yearMax]) ;
+			me.yScale = d3.scale.linear()
+			.domain([0, me.yMax])
+			.range([me.height, 0]) ;
+
+		};
+
+		function setXTicks() {
+
+			if (me.width < 420){
+				me.nXTicks = 5;
+			} else {
+				me.nXTicks = 10;
+			};
+
+		};
+
+		function updateGraph() {
+
+			setSize();
+			createScale();
+			setXTicks();
+
+
+			// SVG & graphing area
+			me.svg.transition()
+			.attr("width", me.width + me.margin.left + 
+				me.margin.right)
+			.attr("height", me.height + me.margin.top + 
+				me.margin.bottom);
+			me.graph.transition()
+			.attr("transform", "translate(" + me.margin.left + "," + 
+					me.margin.top + ")");
+
+			me.graph.select(".graphBackground").transition()
+			.attr("width", me.width)
+			.attr("height", me.height);
+
+
+			// Update scales
+			me.xAxis.scale(me.xScale)
+			me.yAxis.scale(me.yScale);
+			me.svg.selectAll(".x-axis")
+			.transition()
+			.attr("transform", "translate(0," + me.height + ")")
+			.call(me.xAxis);
+			me.svg.selectAll(".y-axis")
+			.transition()
+			.call(me.yAxis);
+
+			// Update data on lines 
+			me.graph.selectAll(".born_line")
+			.transition()
+			.attr("d", me.n_born_line(me.data));
+			me.graph.selectAll(".born_alive_line")
+			.transition()
+			.attr("d", me.n_born_and_alive_line(me.data));
+
+		};
+
+		function resizeGraph() {
+
+			updateGraph();
+
+		};
+
+
+		function redrawGraph(data) {
+
+			me.data = data;
+			updateGraph();
+
+		};
+
+		function setSize() {
+
+			// TODO fix ugly ratio's
+			me.width = $(me.div_name).width() - me.margin.left - 
+				me.margin.right;
+			me.height = Math.max(Math.ceil(me.width / 2.5) - 
+				me.margin.top - me.margin.bottom, MIN_HEIGHT);
+
+
+		};
+
+
+		return {
+			updateGraph: updateGraph,
+			redrawGraph: redrawGraph,
+			};
+
 
 	}
 
@@ -332,11 +443,20 @@ $.get('static/names.json', function(data){
 
         if (error) return console.error(error);
 
-		var totalGraph = nameGraph("#chart-total", name_stats['male']['total']['data']);
-		var maleGraph = nameGraph("#chart-male", name_stats['male']['total']['data']);
-		var femaleGraph = nameGraph("#chart-female", name_stats['female']['total']['data']);
+		totalGraph = new nameGraph("#chart-total", 			
+			name_stats['male']['total']['data']);
+		maleGraph = new nameGraph("#chart-male", 	
+			name_stats['male']['total']['data']);
+		femaleGraph = new nameGraph("#chart-female", 
+			name_stats['female']['total']['data']);
 
     };
+
+	function resizeGraphs() {
+		totalGraph.updateGraph();
+		maleGraph.updateGraph();
+		femaleGraph.updateGraph();
+	};
 
     </script>
 
