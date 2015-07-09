@@ -7,7 +7,7 @@ The goal of this project is to obtain the expected number of people alive with a
 
 # Status
 <li> Scraping: done </li>
-<li> Data manipulation: done/WIP </li>
+<li> Data manipulation: done </li>
 <li> Web app: WIP (see branch <code>website</code>) </li>
 
 
@@ -30,7 +30,7 @@ Scraping is done with <code>scrapy</code> and consists of two stages. First all 
 
 
 #### Data manipulation
-IPython Notebook [Dutch Name Stats](Dutch%20Name%20Stats.ipynb)
+IPython Notebook [How to Tell Someone’s Age When All You Know Is Her Dutch Name](How%20to%20Tell%20Someone’s%20Age%20When%20All%20You%20Know%20Is%20Her%20Dutch%20Name.ipynb)
 
 
 #### Web app (WIP)
