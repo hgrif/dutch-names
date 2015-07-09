@@ -9,14 +9,7 @@ MONGODB_HOST = 'localhost'
 MONGODB_PORT = 27017
 DB_NAME = 'names'
 COLLECTION_NAME = 'data'
-FIELDS = {'name': True,
-          'gender': True,
-          'name_type': True,
-          'birth_year': True,
-          'n_born': True,
-          'n_born_and_alive': True,
-          'n_dead': True,
-          '_id': False}
+FIELDS = {'name': True,}
 
 
 
@@ -29,14 +22,26 @@ def index():
 def names():
     connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
     collection = connection[DB_NAME][COLLECTION_NAME]
-    projects = collection.find(projection=FIELDS, limit=50)
-    #projects = collection.find(fields=FIELDS)
+    projects = collection.find(projection=FIELDS)
     json_projects = []
     for project in projects:
-        json_projects.append(project)
+        json_projects.append(project['name'])
     json_projects = json.dumps(json_projects)
     connection.close()
     return json_projects
+
+
+@app.route("/search")
+def search():
+    """ Get searchable names.
+    :return: JSON string with names
+    """
+    connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
+    collection = connection[DB_NAME][COLLECTION_NAME]
+    db_names = collection.find(projection={'name': True})
+    found_names = sorted(set((p['name'] for p in db_names)))
+    connection.close()
+    return json.dumps(found_names)
 
 
 if __name__ == "__main__":

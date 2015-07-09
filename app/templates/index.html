@@ -126,8 +126,9 @@ See http://mycodde.blogspot.nl/2014/12/typeaheadjs-autocomplete-suggestion.html
 https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#options
 //-->
 <script>
-// Replace static JSON by call to Mongo DB
-$.get('static/names.json', function(data){
+
+// Query DB for all names.
+$.get('search', function(data){
     $("#searchtext").typeahead({
         name: 'sear',
         local: data,
