@@ -1,4 +1,5 @@
 import json
+from bson import json_util
 from flask import Flask
 from flask import render_template
 from pymongo import MongoClient
@@ -38,10 +39,28 @@ def search():
     """
     connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
     collection = connection[DB_NAME][COLLECTION_NAME]
-    db_names = collection.find(projection={'name': True})
-    found_names = sorted(set((p['name'] for p in db_names)))
+    db_names = collection.find(projection={'name': True}).distinct('name')
+    found_names = sorted(db_names)
     connection.close()
-    return json.dumps(found_names)
+    return json_util.dumps(found_names)
+
+
+@app.route("/stats/<name>")
+def stats(name):
+    """ Get stats for a name.
+    :param name: Name
+    :return: JSON string with name stats
+    """
+    connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
+    collection = connection[DB_NAME][COLLECTION_NAME]
+    # TODO: make case insensitive
+    # TODO: Catch unknown names
+    items = collection.find({'name': name.lower()},
+                            {'name': True,
+                             'gender': True,
+                             'name_type': True,
+                             'data': True})
+    return json_util.dumps(items)
 
 
 if __name__ == "__main__":
