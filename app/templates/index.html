@@ -22,7 +22,7 @@
     width: 396px;
     height: 30px;
     padding: 8px 12px;
-    font-size: 20px;
+    font-size: 14;
     line-height: 30px;
     border: 1px solid #ccc;
     -webkit-border-radius: 0px;
@@ -57,7 +57,7 @@
 
 .tt-suggestion {
     padding: 3px 12px;
-    font-size: 15px;
+    font-size: 13px;
     line-height: 24px;
 }
 
@@ -221,7 +221,7 @@ $.get('search', function(data){
 	var totalGraph; var maleGraph; var femaleGraph;
 
     queue()
-    .defer(d3.json, "static/data/anne.json")
+    .defer(d3.json, "stats/berry")
     .await(plotAll);
 
 	d3.select(window).on('resize', resizeGraphs);
@@ -440,16 +440,32 @@ $.get('search', function(data){
 
 	}
 
-    function plotAll(error, name_stats) {
+
+    function plotAll(error, nameStats) {
+
+		function getGenderResults(stats, gender) {
+			nStats = nameStats.length;
+			genderStats = [];
+			for (var i = 0; i < nStats; i++) {
+				if(stats[i]['gender'] == gender) {
+					genderStats = stats[i];
+				};
+			};
+			if(!genderStats) {
+				console.log('ewf');
+			};
+			return genderStats; 
+		};
 
         if (error) return console.error(error);
 
-		totalGraph = new nameGraph("#chart-total", 			
-			name_stats['male']['total']['data']);
-		maleGraph = new nameGraph("#chart-male", 	
-			name_stats['male']['total']['data']);
-		femaleGraph = new nameGraph("#chart-female", 
-			name_stats['female']['total']['data']);
+		totalStats = getGenderResults(nameStats, 'any');
+		maleStats = getGenderResults(nameStats, 'male');
+		femaleStats = getGenderResults(nameStats, 'female');
+
+		totalGraph = new nameGraph("#chart-total", totalStats['data']);
+		maleGraph = new nameGraph("#chart-male", maleStats['data']);
+		femaleGraph = new nameGraph("#chart-female", femaleStats['data']);
 
     };
 
