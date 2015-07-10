@@ -40,7 +40,7 @@ def search():
     connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
     collection = connection[DB_NAME][COLLECTION_NAME]
     db_names = collection.find(projection={'name': True}).distinct('name')
-    found_names = sorted(db_names)
+    found_names = sorted((name.capitalize() for name in db_names))
     connection.close()
     return json_util.dumps(found_names)
 
@@ -53,9 +53,9 @@ def stats(name):
     """
     connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
     collection = connection[DB_NAME][COLLECTION_NAME]
-    # TODO: make case insensitive
     # TODO: Catch unknown names
-    items = collection.find({'name': name.lower()},
+    items = collection.find({'name': name.lower(),
+                             'name_type': 'first'},
                             {'name': True,
                              'gender': True,
                              'name_type': True,
