@@ -2,9 +2,9 @@
 <html lang="en">
 
 <head>
-    <title> Geboortes </title>
-    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<title> Geboortes </title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <link href="static/css/bootstrap.min.css" rel="stylesheet" />
@@ -19,73 +19,73 @@
 
 .tt-query,
 .tt-hint {
-    width: 396px;
-    height: 30px;
-    padding: 8px 12px;
-    font-size: 14;
-    line-height: 30px;
-    border: 1px solid #ccc;
-    -webkit-border-radius: 0px;
-    -moz-border-radius: 0px;
-    border-radius: 0px;
-    outline: none;
+	width: 396px;
+	height: 30px;
+	padding: 8px 12px;
+	font-size: 14;
+	line-height: 30px;
+	border: 1px solid #ccc;
+	-webkit-border-radius: 0px;
+	-moz-border-radius: 0px;
+	border-radius: 0px;
+	outline: none;
 }
 
 .tt-query {
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+	-moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 
 .tt-hint {
-    color: #999
+	color: #999
 }
 
 .tt-dropdown-menu {
-    width: 396px;
-    padding: 8px 0;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    -webkit-border-radius: 0px;
-    -moz-border-radius: 0px;
-    border-radius: 0px;
-    -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-    -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-    box-shadow: 0 5px 10px rgba(0,0,0,.2);
+	width: 396px;
+	padding: 8px 0;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	-webkit-border-radius: 0px;
+	-moz-border-radius: 0px;
+	border-radius: 0px;
+	-webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+	-moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+	box-shadow: 0 5px 10px rgba(0,0,0,.2);
 }
 
 .tt-suggestion {
-    padding: 3px 12px;
-    font-size: 13px;
-    line-height: 24px;
+	padding: 3px 12px;
+	font-size: 13px;
+	line-height: 24px;
 }
 
 .tt-suggestion.tt-is-under-cursor {
-    color: #fff;
-    background-color: #0097cf;
+	color: #fff;
+	background-color: #0097cf;
 
 }
 #chart-total div{
-    background-color: steelblue;
-    text-align: right;
-    display: inline-block;
-    padding: 3px;
-    margin: 1px;
-    color: white;
-    width: 10;
-    height: 75px;	/* Gets overriden by D3-assigned height below */
-    margin-right: 2px;
+	background-color: steelblue;
+	text-align: right;
+	display: inline-block;
+	padding: 3px;
+	margin: 1px;
+	color: white;
+	width: 10;
+	height: 75px;	/* Gets overriden by D3-assigned height below */
+	margin-right: 2px;
 }
 
 
 .chart div {
-  font: 10px sans-serif;
-  background-color: steelblue;
-  text-align: right;
-  padding: 3px;
-  margin: 1px;
-  color: white;
+	font: 10px sans-serif;
+	background-color: steelblue;
+	text-align: right;
+	padding: 3px;
+	margin: 1px;
+	color: white;
 }
 
 .axis line, .axis path {
@@ -107,9 +107,9 @@
 }
 
 .chart2 text {
-  fill: white;
-  font: 10px sans-serif;
-  text-anchor: end;
+	fill: white;
+	font: 10px sans-serif;
+	text-anchor: end;
 }
 
 .graphBackground {
@@ -129,102 +129,112 @@ https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#opti
 
 // Query DB for all names.
 $.get('search', function(data){
-    $("#searchtext").typeahead({
-        name: 'sear',
-        local: data,
-        highlight: true,
-        limit: 10
-    });
-},'json');
+		$("#searchtext").typeahead({
+name: 'sear',
+local: data,
+highlight: true,
+limit: 10
+});
+		},'json');
 
 </script>
 
 
 <body>
 
-    <div class="container">
+<div class="container">
 
-        <div class="panel">
-            <div class="row header">
-                <div class="col-xs-12 text-center">
-                    <h1>
-                        Namen
-                    </h1>
-                </div>
-            </div>
-        </div>
+	<div class="panel">
+		<div class="row header">
+			<div class="col-xs-12 text-center">
+				<h1>
+					Namen
+				</h1>
+			</div>
+		</div>
+	</div>
 
-        <!-- see http://www.bootply.com/render/90113 //-->
+	<!-- see http://www.bootply.com/render/90113 //-->
 
-        <div class="row content" id="'searchrow">
-            <div class="col-sm-4 ">
-				<!-- TODO: align search & glyph //-->
-                <div class="input-group">
-                    <input type="text" name="search" id="searchtext">
-                    <span class="input-group-btn">
-						<!-- TODO: make button do something //-->
-                        <button class="btn btn-default btn-primary" type="submit" id="searchbutton">
-                            <i class="glyphicon glyphicon-search">
-                            </i>
-                        </button>
-                    </span>
-                </div>
-            </div>
+	<div class="row content" id="'searchrow">
+		<div class="col-sm-4 ">
+			<!-- TODO: align search & glyph //-->
+			<div class="input-group">
+				<input type="text" name="search" id="searchtext">
+				<span class="input-group-btn">
+					<!-- TODO: make button do something //-->
+					<button class="btn btn-default btn-primary" type="submit" id="searchbutton">
+						<i class="glyphicon glyphicon-search">
+						</i>
+					</button>
+				</span>
+			</div>
+		</div>
 
-        </div>
-    </div>
+	</div>
+</div>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title"> Totaal</h3>
-                    </div>
-                    <div class="panel-body">
-                        Plaatje
-                        <div class=namegraph id="chart-total"> </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title"> Totaal</h3>
+				</div>
+				<div class="panel-body">
+					Plaatje
+					<div class=namegraph id="chart-total"> </div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title"> Man </h3>
-                    </div>
-                    <div class="panel-body">
-                        Plaatje
-                        <div class=namegraph id="chart-male"> </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title"> Vrouw </h3>
-                    </div>
-                    <div class="panel-body">
-						<!-- TODO: Add summary text //-->
-                        Plaatje
-                        <div class=namegraph id="chart-female"> </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title"> Man </h3>
+				</div>
+				<div class="panel-body">
+					Plaatje
+					<div class=namegraph id="chart-male"> </div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title"> Vrouw </h3>
+				</div>
+				<div class="panel-body">
+					<!-- TODO: Add summary text //-->
+					Plaatje
+					<div class=namegraph id="chart-female"> </div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-    </div>
-    <script ?>
+</div>
+<script ?>
 
-	var totalGraph; var maleGraph; var femaleGraph;
+var totalGraph; var maleGraph; var femaleGraph;
 
-    queue()
-    .defer(d3.json, "stats/berry")
-    .await(plotAll);
+	queue()
+	.defer(d3.json, "stats/anne")
+	.await(plotAll);
 
 	d3.select(window).on('resize', resizeGraphs);
+
+	$("#searchbutton").bind(
+			'click', 
+			function() {
+				var name = document.getElementById('searchtext').value;
+				queue()
+				.defer(d3.json, "stats/" + name)
+				.await(rePlotAll);
+			});
+
 
 
 	function nameGraph(div_name, data) {
@@ -233,7 +243,7 @@ $.get('search', function(data){
 		this.data = data;
 
 		var MIN_HEIGHT = 200;
-        this.margin = {
+		this.margin = {
 			top: 40, 
 			right: 20, 
 			bottom: 40, 
@@ -325,7 +335,7 @@ $.get('search', function(data){
 			.attr("class", "axis x-axis")
 			.attr("transform", "translate(0," + me.height + ")")
 			.call(me.xAxis);
-			
+
 			me.graph.append("g")
 			.attr("class", "axis y-axis")
 			.call(me.yAxis);
@@ -366,6 +376,7 @@ $.get('search', function(data){
 		function updateGraph() {
 
 			setSize();
+			getBoundaries(me.data);
 			createScale();
 			setXTicks();
 
@@ -406,6 +417,7 @@ $.get('search', function(data){
 
 		};
 
+
 		function resizeGraph() {
 
 			updateGraph();
@@ -441,33 +453,46 @@ $.get('search', function(data){
 	}
 
 
-    function plotAll(error, nameStats) {
+	function plotAll(error, nameStats) {
 
-		function getGenderResults(stats, gender) {
-			nStats = nameStats.length;
-			genderStats = [];
-			for (var i = 0; i < nStats; i++) {
-				if(stats[i]['gender'] == gender) {
-					genderStats = stats[i];
-				};
-			};
-			if(!genderStats) {
-				console.log('ewf');
-			};
-			return genderStats; 
-		};
+		if (error) return console.error(error);
 
-        if (error) return console.error(error);
-
-		totalStats = getGenderResults(nameStats, 'any');
-		maleStats = getGenderResults(nameStats, 'male');
-		femaleStats = getGenderResults(nameStats, 'female');
+		totalStats = getGenderStats(nameStats, 'any');
+		maleStats = getGenderStats(nameStats, 'male');
+		femaleStats = getGenderStats(nameStats, 'female');
 
 		totalGraph = new nameGraph("#chart-total", totalStats['data']);
 		maleGraph = new nameGraph("#chart-male", maleStats['data']);
 		femaleGraph = new nameGraph("#chart-female", femaleStats['data']);
 
-    };
+	};
+
+	function rePlotAll(error, nameStats) {
+
+		totalStats = getGenderStats(nameStats, 'any');
+		maleStats = getGenderStats(nameStats, 'male');
+		femaleStats = getGenderStats(nameStats, 'female');
+
+		totalGraph.redrawGraph(totalStats['data']);
+		maleGraph.redrawGraph(maleStats['data']);
+		femaleGraph.redrawGraph(femaleStats['data']);
+	};
+
+
+	function getGenderStats(nameStats, gender) {
+		var nStats = nameStats.length;
+		var genderStats = [];
+		for (var i = 0; i < nStats; i++) {
+			if(nameStats[i]['gender'] == gender) {
+				genderStats = nameStats[i];
+			};
+		};
+		if(!genderStats) {
+			console.log('ewf');
+		};
+		return genderStats; 
+	};
+
 
 	function resizeGraphs() {
 		totalGraph.updateGraph();
@@ -475,7 +500,7 @@ $.get('search', function(data){
 		femaleGraph.updateGraph();
 	};
 
-    </script>
+</script>
 
 </body>
 
