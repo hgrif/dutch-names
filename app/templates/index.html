@@ -128,14 +128,20 @@ https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#opti
 <script>
 
 // Query DB for all names.
-$.get('search', function(data){
-		$("#searchtext").typeahead({
-name: 'sear',
-local: data,
-highlight: true,
-limit: 10
-});
-		},'json');
+queue()
+.defer(d3.json, 'search')
+.await(updateType);
+
+function updateType(e, data){
+	$("#searchtext").typeahead({
+	name: 'sear',
+	local: data,
+	highlight: true,
+	limit: 20
+	});
+};
+
+
 
 </script>
 
@@ -162,7 +168,6 @@ limit: 10
 			<div class="input-group">
 				<input type="text" name="search" id="searchtext">
 				<span class="input-group-btn">
-					<!-- TODO: make button do something //-->
 					<button class="btn btn-default btn-primary" type="submit" id="searchbutton">
 						<i class="glyphicon glyphicon-search">
 						</i>
@@ -228,14 +233,22 @@ var totalGraph; var maleGraph; var femaleGraph;
 
 	$("#searchbutton").bind(
 			'click', 
-			function() {
-				var name = document.getElementById('searchtext').value;
-				queue()
-				.defer(d3.json, "stats/" + name)
-				.await(rePlotAll);
-			});
+			getNameGraph
+	);
 
+	$('#searchtext').keydown(function (event) {
+    var keypressed = event.keyCode || event.which;
+    if (keypressed == 13) {
+		getNameGraph();
+    }
+	});
 
+	function getNameGraph() {
+		var name = document.getElementById('searchtext').value;
+		queue()
+		.defer(d3.json, "stats/" + name)
+		.await(rePlotAll);
+	};
 
 	function nameGraph(div_name, data) {
 
@@ -264,7 +277,7 @@ var totalGraph; var maleGraph; var femaleGraph;
 		this.yMax;
 
 		this.n_born_line;
-		this.n_born_and_alive_line;
+		this.n_alive_line;
 
 		var me = this;
 
@@ -314,11 +327,11 @@ var totalGraph; var maleGraph; var femaleGraph;
 			// https://stackoverflow.com/questions/27597715/d3-x-value-mouseover-multiple-line-chart
 			// https://stackoverflow.com/questions/14043455/overlay-circle-text-etc-over-d3-js-multi-series-lines
 			me.n_born_line = d3.svg.line()
-			.x(function(d) { return me.xScale(d.birth_year); })
+			.x(function(d) { return me.xScale(d.year); })
 			.y(function(d) { return me.yScale(d.n_born); } );
-			me.n_born_and_alive_line = d3.svg.line()
-			.x(function(d) { return me.xScale(d.birth_year); })
-			.y(function(d) { return Math.round(me.yScale(d.n_born_and_alive)); } );
+			me.n_alive_line = d3.svg.line()
+			.x(function(d) { return me.xScale(d.year); })
+			.y(function(d) { return Math.round(me.yScale(d.n_alive)); } );
 
 			me.graph.append("svg:path")
 			.attr({
@@ -327,7 +340,7 @@ var totalGraph; var maleGraph; var femaleGraph;
 				});
 			me.graph.append("svg:path")
 			.attr({
-				d: me.n_born_and_alive_line(data),
+				d: me.n_alive_line(data),
 				class: "path born_alive_line"
 				});
 
@@ -346,8 +359,8 @@ var totalGraph; var maleGraph; var femaleGraph;
 		function getBoundaries(data) {
 
 			// Determine axis boundaries
-			me.yearMin = d3.min(data, function(d) { return d.birth_year; });
-			me.yearMax = d3.max(data, function(d) { return d.birth_year; });
+			me.yearMin = d3.min(data, function(d) { return d.year; });
+			me.yearMax = d3.max(data, function(d) { return d.year; });
 			me.yMax = d3.max(data, function(d) { return d.n_born; });
 
 		};
@@ -413,7 +426,7 @@ var totalGraph; var maleGraph; var femaleGraph;
 			.attr("d", me.n_born_line(me.data));
 			me.graph.selectAll(".born_alive_line")
 			.transition()
-			.attr("d", me.n_born_and_alive_line(me.data));
+			.attr("d", me.n_alive_line(me.data));
 
 		};
 
@@ -487,8 +500,14 @@ var totalGraph; var maleGraph; var femaleGraph;
 				genderStats = nameStats[i];
 			};
 		};
-		if(!genderStats) {
-			console.log('ewf');
+		if(Array.isArray(genderStats) && genderStats.length == 0) {
+			anyStats = getGenderStats(nameStats, 'any');
+			genderStats = jQuery.extend(true, {}, anyStats);
+			genderStats['gender'] = gender
+			for (var j = 0; j < genderStats['data'].length; j++) {
+				genderStats['data'][j]['n_born'] = 0
+				genderStats['data'][j]['n_alive'] = 0
+			};
 		};
 		return genderStats; 
 	};

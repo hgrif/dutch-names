@@ -13,7 +13,6 @@ COLLECTION_NAME = 'data'
 FIELDS = {'name': True,}
 
 
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -27,9 +26,8 @@ def names():
     json_projects = []
     for project in projects:
         json_projects.append(project['name'])
-    json_projects = json.dumps(json_projects)
     connection.close()
-    return json_projects
+    return dump_unicode_json(json_projects) 
 
 
 @app.route("/search")
@@ -42,7 +40,7 @@ def search():
     db_names = collection.find(projection={'name': True}).distinct('name')
     found_names = sorted((name.capitalize() for name in db_names))
     connection.close()
-    return json_util.dumps(found_names)
+    return dump_unicode_json(found_names)
 
 
 @app.route("/stats/<name>")
@@ -60,8 +58,12 @@ def stats(name):
                              'gender': True,
                              'name_type': True,
                              'data': True})
-    return json_util.dumps(items)
+    return dump_unicode_json(items)
+
+
+def dump_unicode_json(l):
+    return json_util.dumps(l, ensure_ascii=False).encode('utf8')
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0',port=5000,debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
