@@ -1,0 +1,526 @@
+<!DOCTYPE>
+<html lang="en">
+
+<head>
+<title> Geboortes </title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<link href="static/css/bootstrap.min.css" rel="stylesheet" />
+<link href="static/css/theme.css" rel="stylesheet" />
+<script type="text/javascript" src="static/js/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="static/js/typeahead.min.js"></script>
+<script type="text/javascript" src="static/js/d3.js"></script>
+<script type="text/javascript" src="static/js/queue.min.js"></script>
+
+<style>
+
+.tt-query,
+.tt-hint {
+	width: 396px;
+	height: 30px;
+	padding: 8px 12px;
+	font-size: 14;
+	line-height: 30px;
+	border: 1px solid #ccc;
+	-webkit-border-radius: 0px;
+	-moz-border-radius: 0px;
+	border-radius: 0px;
+	outline: none;
+}
+
+.tt-query {
+	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+	-moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+.tt-hint {
+	color: #999
+}
+
+.tt-dropdown-menu {
+	width: 396px;
+	padding: 8px 0;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	-webkit-border-radius: 0px;
+	-moz-border-radius: 0px;
+	border-radius: 0px;
+	-webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+	-moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+	box-shadow: 0 5px 10px rgba(0,0,0,.2);
+}
+
+.tt-suggestion {
+	padding: 3px 12px;
+	font-size: 13px;
+	line-height: 24px;
+}
+
+.tt-suggestion.tt-is-under-cursor {
+	color: #fff;
+	background-color: #0097cf;
+
+}
+#chart-total div{
+	background-color: steelblue;
+	text-align: right;
+	display: inline-block;
+	padding: 3px;
+	margin: 1px;
+	color: white;
+	width: 10;
+	height: 75px;	/* Gets overriden by D3-assigned height below */
+	margin-right: 2px;
+}
+
+
+.chart div {
+	font: 10px sans-serif;
+	background-color: steelblue;
+	text-align: right;
+	padding: 3px;
+	margin: 1px;
+	color: white;
+}
+
+.axis line, .axis path {
+	stroke: green;
+	stroke-width: 1.0;
+	stroke: black; fill: none; stroke-width: 1px;
+}
+
+.born_line {
+	fill: none;
+	stroke: steelblue;
+	stroke-width: 2;
+}
+
+.born_alive_line {
+	fill: none;
+	stroke: green;
+	stroke-width: 2;
+}
+
+.chart2 text {
+	fill: white;
+	font: 10px sans-serif;
+	text-anchor: end;
+}
+
+.graphBackground {
+	fill: #eeeeee;
+	stroke: #dddddd;
+	stroke-width: 1;
+}
+
+
+</style>
+
+<!--
+See http://mycodde.blogspot.nl/2014/12/typeaheadjs-autocomplete-suggestion.html
+https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#options
+//-->
+<script>
+
+// Query DB for all names.
+queue()
+.defer(d3.json, 'search')
+.await(updateType);
+
+function updateType(e, data){
+	$("#searchtext").typeahead({
+	name: 'sear',
+	local: data,
+	highlight: true,
+	limit: 20
+	});
+};
+
+
+
+</script>
+
+
+<body>
+
+<div class="container">
+
+	<div class="panel">
+		<div class="row header">
+			<div class="col-xs-12 text-center">
+				<h1>
+					Namen
+				</h1>
+			</div>
+		</div>
+	</div>
+
+	<!-- see http://www.bootply.com/render/90113 //-->
+
+	<div class="row content" id="'searchrow">
+		<div class="col-sm-4 ">
+			<!-- TODO: align search & glyph //-->
+			<div class="input-group">
+				<input type="text" name="search" id="searchtext">
+				<span class="input-group-btn">
+					<button class="btn btn-default btn-primary" type="submit" id="searchbutton">
+						<i class="glyphicon glyphicon-search">
+						</i>
+					</button>
+				</span>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title"> Totaal</h3>
+				</div>
+				<div class="panel-body">
+					Plaatje
+					<div class=namegraph id="chart-total"> </div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title"> Man </h3>
+				</div>
+				<div class="panel-body">
+					Plaatje
+					<div class=namegraph id="chart-male"> </div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title"> Vrouw </h3>
+				</div>
+				<div class="panel-body">
+					<!-- TODO: Add summary text //-->
+					Plaatje
+					<div class=namegraph id="chart-female"> </div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+<script ?>
+
+var totalGraph; var maleGraph; var femaleGraph;
+
+	queue()
+	.defer(d3.json, "stats/anne")
+	.await(plotAll);
+
+	d3.select(window).on('resize', resizeGraphs);
+
+	$("#searchbutton").bind(
+			'click', 
+			getNameGraph
+	);
+
+	$('#searchtext').keydown(function (event) {
+    var keypressed = event.keyCode || event.which;
+    if (keypressed == 13) {
+		getNameGraph();
+    }
+	});
+
+	function getNameGraph() {
+		var name = document.getElementById('searchtext').value;
+		queue()
+		.defer(d3.json, "stats/" + name)
+		.await(rePlotAll);
+	};
+
+	function nameGraph(div_name, data) {
+
+		this.div_name = div_name;
+		this.data = data;
+
+		var MIN_HEIGHT = 200;
+		this.margin = {
+			top: 40, 
+			right: 20, 
+			bottom: 40, 
+			left: 40}
+
+		this.data;
+
+		this.svg;
+		this.graph;
+		this.xScale;
+		this.yScale;
+		this.xAxis;
+		this.yAxis;
+		this.nXTicks;
+
+		this.yearMin;
+		this.yearMax;
+		this.yMax;
+
+		this.n_born_line;
+		this.n_alive_line;
+
+		var me = this;
+
+		createGraph();
+
+		function createGraph() {
+			setSize();
+
+			// Create drawing area and graph.
+			me.svg = d3.select(me.div_name)
+			.append('svg')
+			.attr("width", me.width + me.margin.left + 
+				me.margin.right)
+			.attr("height", me.height + me.margin.top + 
+				me.margin.bottom);
+			me.graph = me.svg.append("svg:g")
+			.attr("transform", "translate(" + me.margin.left + "," + 
+					me.margin.top + ")");
+
+			// Add background
+			me.graph.append("rect")
+			.attr("class", "graphBackground")
+			.attr("width", me.width)
+			.attr("height", me.height)
+			.attr("fill", "#ffffff");
+
+			// Get axes properties
+			getBoundaries(me.data);
+			createScale();
+			setXTicks();
+
+			me.xAxis = d3.svg.axis()
+			.scale(me.xScale)
+			.orient("bottom")
+			.ticks(me.nXTicks)
+			.tickFormat(d3.format("d"))
+			;
+			me.yAxis = d3.svg.axis()
+			.scale(me.yScale)
+			.orient("left")
+			.tickFormat(d3.format("d"))
+			;
+
+
+			// TODO: add mouse over
+			// http://bl.ocks.org/Matthew-Weber/5645518
+			// https://stackoverflow.com/questions/27597715/d3-x-value-mouseover-multiple-line-chart
+			// https://stackoverflow.com/questions/14043455/overlay-circle-text-etc-over-d3-js-multi-series-lines
+			me.n_born_line = d3.svg.line()
+			.x(function(d) { return me.xScale(d.year); })
+			.y(function(d) { return me.yScale(d.n_born); } );
+			me.n_alive_line = d3.svg.line()
+			.x(function(d) { return me.xScale(d.year); })
+			.y(function(d) { return Math.round(me.yScale(d.n_alive)); } );
+
+			me.graph.append("svg:path")
+			.attr({
+				d: me.n_born_line(data),
+				class: "path born_line"
+				});
+			me.graph.append("svg:path")
+			.attr({
+				d: me.n_alive_line(data),
+				class: "path born_alive_line"
+				});
+
+			me.graph.append("g")
+			.attr("class", "axis x-axis")
+			.attr("transform", "translate(0," + me.height + ")")
+			.call(me.xAxis);
+
+			me.graph.append("g")
+			.attr("class", "axis y-axis")
+			.call(me.yAxis);
+
+
+		};
+
+		function getBoundaries(data) {
+
+			// Determine axis boundaries
+			me.yearMin = d3.min(data, function(d) { return d.year; });
+			me.yearMax = d3.max(data, function(d) { return d.year; });
+			me.yMax = d3.max(data, function(d) { return d.n_born; });
+
+		};
+
+		function createScale() {
+
+			me.xScale = d3.scale.linear()
+			.range([0, me.width])
+			.domain([me.yearMin, me.yearMax]) ;
+			me.yScale = d3.scale.linear()
+			.domain([0, me.yMax])
+			.range([me.height, 0]) ;
+
+		};
+
+		function setXTicks() {
+
+			if (me.width < 420){
+				me.nXTicks = 5;
+			} else {
+				me.nXTicks = 10;
+			};
+
+		};
+
+		function updateGraph() {
+
+			setSize();
+			getBoundaries(me.data);
+			createScale();
+			setXTicks();
+
+
+			// SVG & graphing area
+			me.svg.transition()
+			.attr("width", me.width + me.margin.left + 
+				me.margin.right)
+			.attr("height", me.height + me.margin.top + 
+				me.margin.bottom);
+			me.graph.transition()
+			.attr("transform", "translate(" + me.margin.left + "," + 
+					me.margin.top + ")");
+
+			me.graph.select(".graphBackground").transition()
+			.attr("width", me.width)
+			.attr("height", me.height);
+
+
+			// Update scales
+			me.xAxis.scale(me.xScale)
+			me.yAxis.scale(me.yScale);
+			me.svg.selectAll(".x-axis")
+			.transition()
+			.attr("transform", "translate(0," + me.height + ")")
+			.call(me.xAxis);
+			me.svg.selectAll(".y-axis")
+			.transition()
+			.call(me.yAxis);
+
+			// Update data on lines 
+			me.graph.selectAll(".born_line")
+			.transition()
+			.attr("d", me.n_born_line(me.data));
+			me.graph.selectAll(".born_alive_line")
+			.transition()
+			.attr("d", me.n_alive_line(me.data));
+
+		};
+
+
+		function resizeGraph() {
+
+			updateGraph();
+
+		};
+
+
+		function redrawGraph(data) {
+
+			me.data = data;
+			updateGraph();
+
+		};
+
+		function setSize() {
+
+			// TODO fix ugly ratio's
+			me.width = $(me.div_name).width() - me.margin.left - 
+				me.margin.right;
+			me.height = Math.max(Math.ceil(me.width / 2.5) - 
+				me.margin.top - me.margin.bottom, MIN_HEIGHT);
+
+
+		};
+
+
+		return {
+			updateGraph: updateGraph,
+			redrawGraph: redrawGraph,
+			};
+
+
+	}
+
+
+	function plotAll(error, nameStats) {
+
+		if (error) return console.error(error);
+
+		totalStats = getGenderStats(nameStats, 'any');
+		maleStats = getGenderStats(nameStats, 'male');
+		femaleStats = getGenderStats(nameStats, 'female');
+
+		totalGraph = new nameGraph("#chart-total", totalStats['data']);
+		maleGraph = new nameGraph("#chart-male", maleStats['data']);
+		femaleGraph = new nameGraph("#chart-female", femaleStats['data']);
+
+	};
+
+	function rePlotAll(error, nameStats) {
+
+		totalStats = getGenderStats(nameStats, 'any');
+		maleStats = getGenderStats(nameStats, 'male');
+		femaleStats = getGenderStats(nameStats, 'female');
+
+		totalGraph.redrawGraph(totalStats['data']);
+		maleGraph.redrawGraph(maleStats['data']);
+		femaleGraph.redrawGraph(femaleStats['data']);
+	};
+
+
+	function getGenderStats(nameStats, gender) {
+		var nStats = nameStats.length;
+		var genderStats = [];
+		for (var i = 0; i < nStats; i++) {
+			if(nameStats[i]['gender'] == gender) {
+				genderStats = nameStats[i];
+			};
+		};
+		if(Array.isArray(genderStats) && genderStats.length == 0) {
+			anyStats = getGenderStats(nameStats, 'any');
+			genderStats = jQuery.extend(true, {}, anyStats);
+			genderStats['gender'] = gender
+			for (var j = 0; j < genderStats['data'].length; j++) {
+				genderStats['data'][j]['n_born'] = 0
+				genderStats['data'][j]['n_alive'] = 0
+			};
+		};
+		return genderStats; 
+	};
+
+
+	function resizeGraphs() {
+		totalGraph.updateGraph();
+		maleGraph.updateGraph();
+		femaleGraph.updateGraph();
+	};
+
+</script>
+
+</body>
+
+</html>
